@@ -12,17 +12,17 @@ import (
 	"github.com/sw90lee/go-web/pkg/render"
 )
 
-const portnumber = ":8080"
+const portNumber = ":8080"
 
 var app config.Appconfig
 var session *scs.SessionManager
 
-// main is the main application function
+// main is the main function
 func main() {
-
 	// change this to true when in production
 	app.InProduction = false
 
+	// set up the session
 	session = scs.New()
 	session.Lifetime = 24 * time.Hour
 	session.Cookie.Persist = true
@@ -44,9 +44,15 @@ func main() {
 
 	render.NewTemplates(&app)
 
-	http.HandleFunc("/", handlers.Repo.Home)
-	http.HandleFunc("/about", handlers.Repo.About)
+	fmt.Println(fmt.Sprintf("Staring application on port %s", portNumber))
 
-	fmt.Println(fmt.Sprintf("Startin application on port %s", portnumber))
-	_ = http.ListenAndServe(portnumber, nil)
+	srv := &http.Server{
+		Addr:    portNumber,
+		Handler: routes(&app),
+	}
+
+	err = srv.ListenAndServe()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
