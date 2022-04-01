@@ -50,3 +50,18 @@ func (m *Repository) About(w http.ResponseWriter, r *http.Request) {
 		StringMap: stringMap,
 	})
 }
+
+//Generals renders the room page
+func (m *Repository) Genarals(w http.ResponseWriter, r *http.Request) {
+	render.RenderTemplate(w, "generals.page.tmpl", &models.TemplateData{})
+}
+
+//Majors renders the room page
+func (m *Repository) Majors(w http.ResponseWriter, r *http.Request) {
+	render.RenderTemplate(w, "majors.tmpl", &models.TemplateData{})
+}
+
+//Availability
+func (m *Repository) Availability(w http.ResponseWriter, r *http.Request) {
+	render.RenderTemplate(w, "search-availabilty.page.tmpl", &models.TemplateData{})
+}
