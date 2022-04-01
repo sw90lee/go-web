@@ -3,29 +3,30 @@ package render
 import (
 	"bytes"
 	"fmt"
+	"github.com/tsawler/bookings-app/pkg/config"
+	"github.com/tsawler/bookings-app/pkg/models"
+	"html/template"
 	"log"
 	"net/http"
 	"path/filepath"
-	"text/template"
-
-	"github.com/sw90lee/go-web/pkg/config"
-	"github.com/sw90lee/go-web/pkg/models"
 )
 
 var functions = template.FuncMap{}
 
-var app *config.Appconfig
+var app *config.AppConfig
 
-// NewTemplate set the config for the template package
-func NewTemplates(a *config.Appconfig) {
+// NewTemplates sets the config for the template package
+func NewTemplates(a *config.AppConfig) {
 	app = a
 }
 
 func AddDefaultData(td *models.TemplateData) *models.TemplateData {
+
 	return td
 }
 
-func RenderTemplate(w http.ResponseWriter, html string, td *models.TemplateData) {
+// RenderTemplate renders a template
+func RenderTemplate(w http.ResponseWriter, tmpl string, td *models.TemplateData) {
 	var tc map[string]*template.Template
 
 	if app.UseCache {
@@ -35,7 +36,7 @@ func RenderTemplate(w http.ResponseWriter, html string, td *models.TemplateData)
 		tc, _ = CreateTemplateCache()
 	}
 
-	t, ok := tc[html]
+	t, ok := tc[tmpl]
 	if !ok {
 		log.Fatal("Could not get template from template cache")
 	}
@@ -44,19 +45,13 @@ func RenderTemplate(w http.ResponseWriter, html string, td *models.TemplateData)
 
 	td = AddDefaultData(td)
 
-	_ = t.Execute(buf, nil)
+	_ = t.Execute(buf, td)
 
 	_, err := buf.WriteTo(w)
 	if err != nil {
-		fmt.Println("Error writing template to browser", err)
+		fmt.Println("error writing template to browser", err)
 	}
 
-	paredTemplate, _ := template.ParseFiles("./template/" + html)
-	err = paredTemplate.Execute(w, nil)
-	if err != nil {
-		fmt.Println("Error parsing template:", err)
-		return
-	}
 }
 
 // CreateTemplateCache creates a template cache as a map
@@ -64,29 +59,30 @@ func CreateTemplateCache() (map[string]*template.Template, error) {
 
 	myCache := map[string]*template.Template{}
 
-	pages, err := filepath.Glob("./template/*.page.html")
+	pages, err := filepath.Glob("./templates/*.page.tmpl")
 	if err != nil {
 		return myCache, err
 	}
-	for _, page := range pages { // Pages값을 하나씩 추출해서 page에 넣음
-		name := filepath.Base(page) // 마지막 요소 반환
 
+	for _, page := range pages {
+		name := filepath.Base(page)
 		ts, err := template.New(name).Funcs(functions).ParseFiles(page)
 		if err != nil {
 			return myCache, err
 		}
 
-		match, err := filepath.Glob("./template/*.layout.html")
+		matches, err := filepath.Glob("./templates/*.layout.tmpl")
 		if err != nil {
 			return myCache, err
 		}
 
-		if len(match) > 0 {
-			ts, err = ts.ParseGlob("./template/*layout.html")
+		if len(matches) > 0 {
+			ts, err = ts.ParseGlob("./templates/*.layout.tmpl")
 			if err != nil {
 				return myCache, err
 			}
 		}
+
 		myCache[name] = ts
 	}
 

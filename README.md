@@ -1,8 +1,10 @@
-# Book Revervaiont Project
+# Bookings and Reservations
 
-책을 예약할 수있게 도와주는 Web Project입니다.
+The repository for [Building Modern Web Applications with Go](https://www.udemy.com/course/building-modern-web-applications-with-go/?referralCode=0415FB906223F10C6800).
 
-- Build in Go version 1.17.6
-- Uses [the chi router](https://github.com/go-chi/chi/v5)
-- Uses [alex edwards SCS session management](https://github.com/alexedwards/scs/v2)
-- Uses [nosurf](https://github.com/justinas/nosurf) 
+
+
+- Built in Go version 1.15
+- Uses the [chi router](github.com/go-chi/chi)
+- Uses [alex edwards scs session management](github.com/alexedwards/scs)
+- Uses [nosurf](github.com/justinas/nosurf)
