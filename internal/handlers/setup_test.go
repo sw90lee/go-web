@@ -23,6 +23,7 @@ var pathToTemplates = "./../../templates"
 var functions = template.FuncMap{}
 
 func getRoutes() http.Handler {
+	// what am I going to put in the session
 	gob.Register(models.Reservation{})
 
 	// change this to true when in production
@@ -47,8 +48,8 @@ func getRoutes() http.Handler {
 
 	repo := NewRepo(&app)
 	NewHandlers(repo)
+
 	render.NewTemplates(&app)
-	return nil
 
 	mux := chi.NewRouter()
 
@@ -60,8 +61,10 @@ func getRoutes() http.Handler {
 	mux.Get("/about", Repo.About)
 	mux.Get("/generals-quarters", Repo.Generals)
 	mux.Get("/majors-suite", Repo.Majors)
+
+	mux.Get("/search-availability", Repo.Availability)
 	mux.Post("/search-availability", Repo.PostAvailability)
-	mux.Post("/search-availability-JSON", Repo.AvailabilityJson)
+	mux.Post("/search-availability-json", Repo.AvailabilityJson)
 
 	mux.Get("/contact", Repo.Contact)
 
@@ -75,6 +78,7 @@ func getRoutes() http.Handler {
 	return mux
 }
 
+// NoSurf is the csrf protection middleware
 func NoSurf(next http.Handler) http.Handler {
 	csrfHandler := nosurf.New(next)
 
@@ -87,16 +91,17 @@ func NoSurf(next http.Handler) http.Handler {
 	return csrfHandler
 }
 
+// SessionLoad loads and saves session data for current request
 func SessionLoad(next http.Handler) http.Handler {
 	return session.LoadAndSave(next)
-
 }
 
+// CreateTestTemplateCache creates a template cache as a map
 func CreateTestTemplateCache() (map[string]*template.Template, error) {
 
 	myCache := map[string]*template.Template{}
 
-	pages, err := filepath.Glob(fmt.Sprintf("%s/*.page..tmpl", pathToTemplates))
+	pages, err := filepath.Glob(fmt.Sprintf("%s/*.page.tmpl", pathToTemplates))
 	if err != nil {
 		return myCache, err
 	}

@@ -21,30 +21,30 @@ var theTests = []struct {
 }{
 	{"home", "/", "GET", []postData{}, http.StatusOK},
 	{"about", "/about", "GET", []postData{}, http.StatusOK},
-	{"gq", "/genarals-quaters", "GET", []postData{}, http.StatusOK},
-	{"ms", "/majors-suite", "GET", []postData{}, http.StatusOK},
-	{"sa", "/search-availability", "GET", []postData{}, http.StatusOK},
+	{"generals-quarters", "/generals-quarters", "GET", []postData{}, http.StatusOK},
+	{"majors-suite", "/majors-suite", "GET", []postData{}, http.StatusOK},
+	{"search-availability", "/search-availability", "GET", []postData{}, http.StatusOK},
 	{"contact", "/contact", "GET", []postData{}, http.StatusOK},
-	{"mr", "/make-reservation", "GET", []postData{}, http.StatusOK},
-	{"post-search-avail", "/serach-availability", "POST", []postData{
-		{key: "start", value: "2022-01-01"},
-		{key: "end", value: "2022-01-02"},
+	{"make-res", "/make-reservation", "GET", []postData{}, http.StatusOK},
+	{"post-search-availability", "/search-availability", "Post", []postData{
+		{key: "start", value: "2020-01-01"},
+		{key: "end", value: "2020-01-02"},
 	}, http.StatusOK},
-	{"post-search-avail-json", "/serach-availability-json", "POST", []postData{
-		{key: "start", value: "2022-01-01"},
-		{key: "end", value: "2022-01-02"},
+	{"post-search-availability-json", "/search-availability-json", "Post", []postData{
+		{key: "start", value: "2020-01-01"},
+		{key: "end", value: "2020-01-02"},
 	}, http.StatusOK},
-	{"post-make-reserv", "/make-reservation", "POST", []postData{
-		{key: "first_name", value: "Lee"},
-		{key: "last_name", value: "SungWoo"},
-		{key: "email", value: "sw90lee@naver.com"},
-		{key: "last_name", value: "010-5555-5555"},
+	{"make-reservation", "/make-reservation", "Post", []postData{
+		{key: "first_name", value: "John"},
+		{key: "last_name", value: "Smith"},
+		{key: "email", value: "me@here.com"},
+		{key: "phone", value: "555-555-5555"},
 	}, http.StatusOK},
 }
 
-// Route Test
 func TestHandlers(t *testing.T) {
 	routes := getRoutes()
+
 	ts := httptest.NewTLSServer(routes)
 	defer ts.Close()
 
@@ -57,13 +57,14 @@ func TestHandlers(t *testing.T) {
 			}
 
 			if resp.StatusCode != e.expectedStatusCode {
-				t.Errorf("for %s, expected %d but got %d", e.name, e.expectedStatusCode, resp.StatusCode)
+				t.Errorf("for %s expected %d but got %d", e.name, e.expectedStatusCode, resp.StatusCode)
 			}
 		} else {
 			values := url.Values{}
 			for _, x := range e.params {
 				values.Add(x.key, x.value)
 			}
+
 			resp, err := ts.Client().PostForm(ts.URL+e.url, values)
 			if err != nil {
 				t.Log(err)
@@ -71,7 +72,7 @@ func TestHandlers(t *testing.T) {
 			}
 
 			if resp.StatusCode != e.expectedStatusCode {
-				t.Errorf("for %s, expected %d but got %d", e.name, e.expectedStatusCode, resp.StatusCode)
+				t.Errorf("for %s expected %d but got %d", e.name, e.expectedStatusCode, resp.StatusCode)
 			}
 		}
 	}

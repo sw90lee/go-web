@@ -4,9 +4,7 @@ import (
 	"encoding/gob"
 	"github.com/alexedwards/scs/v2"
 	"github.com/sw90lee/go-web/internal/config"
-	"github.com/sw90lee/go-web/internal/handlers"
 	"github.com/sw90lee/go-web/internal/models"
-	"log"
 	"net/http"
 	"os"
 	"testing"
@@ -17,6 +15,7 @@ var session *scs.SessionManager
 var testApp config.AppConfig
 
 func TestMain(m *testing.M) {
+
 	gob.Register(models.Reservation{})
 
 	// change this to true when in production
@@ -33,17 +32,21 @@ func TestMain(m *testing.M) {
 
 	app = &testApp
 
-	tc, err := CreateTemplateCache()
-	if err != nil {
-		log.Fatal("cannot create template cache")
-	}
-
-	app.TemplateCache = tc
-	app.UseCache = false
-
-	repo := handlers.NewRepo(app)
-	handlers.NewHandlers(repo)
-	NewTemplates(app)
-
 	os.Exit(m.Run())
+}
+
+type myWriter struct{}
+
+func (tw *myWriter) Header() http.Header {
+	var h http.Header
+	return h
+}
+
+func (tw *myWriter) WriteHeader(i int) {
+
+}
+
+func (tw *myWriter) Write(b []byte) (int, error) {
+	length := len(b)
+	return length, nil
 }
